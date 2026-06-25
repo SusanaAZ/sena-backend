@@ -1,5 +1,6 @@
 package com.sena.sena_backend.service;
 
+import com.sena.sena_backend.dto.CambiarPasswordRequest;
 import com.sena.sena_backend.dto.LoginRequest;
 import com.sena.sena_backend.dto.LoginResponse;
 import com.sena.sena_backend.dto.RegistroRequest;
@@ -14,6 +15,7 @@ import com.sena.sena_backend.repository.SesionUsuarioRepository;
 import com.sena.sena_backend.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.UUID;
 
@@ -94,6 +96,35 @@ public class AuthService {
     public void logout(String authorizationHeader) {
         String token = limpiarToken(authorizationHeader);
         sesionRepository.deleteByToken(token);
+    }
+
+    public void cambiarPassword(String authorizationHeader, CambiarPasswordRequest request) {
+        Usuario usuario = obtenerUsuarioPorToken(authorizationHeader);
+
+        if (request == null) {
+            throw new RuntimeException("Datos incompletos");
+        }
+
+        if (!StringUtils.hasText(request.getActual())
+                || !StringUtils.hasText(request.getNueva())
+                || !StringUtils.hasText(request.getConfirmar())) {
+            throw new RuntimeException("Completa todos los campos");
+        }
+
+        if (!passwordEncoder.matches(request.getActual(), usuario.getPasswordHash())) {
+            throw new RuntimeException("Contraseña actual incorrecta");
+        }
+
+        if (request.getNueva().trim().length() < 6) {
+            throw new RuntimeException("La nueva contraseña debe tener mínimo 6 caracteres");
+        }
+
+        if (!request.getNueva().equals(request.getConfirmar())) {
+            throw new RuntimeException("Las contraseñas no coinciden");
+        }
+
+        usuario.setPasswordHash(passwordEncoder.encode(request.getNueva()));
+        usuarioRepository.save(usuario);
     }
 
     private String limpiarToken(String authorizationHeader) {

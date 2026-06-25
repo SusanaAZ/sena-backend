@@ -29,6 +29,8 @@ public class Usuario {
 
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
+    private boolean premium = false;
+
     public Usuario() {
     }
 
@@ -40,6 +42,7 @@ public class Usuario {
         this.avatar = 0;
         this.activo = true;
         this.fechaCreacion = LocalDateTime.now();
+        this.premium = false;
     }
 
     public Long getId() {
@@ -74,6 +77,10 @@ public class Usuario {
         return fechaCreacion;
     }
 
+    public boolean isPremium() {
+        return premium;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -104,5 +111,9 @@ public class Usuario {
 
     public void setFechaCreacion(LocalDateTime fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
+    }
+
+    public void setPremium(boolean premium) {
+        this.premium = premium;
     }
 }
